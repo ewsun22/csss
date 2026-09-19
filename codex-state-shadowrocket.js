@@ -36,6 +36,32 @@ function notify(title, subtitle, body) {
   } catch (_) {}
 }
 
+function notifyCaptured(entry, now) {
+  notify("Codex " + entry.length + " 已采集", "开始跨会话复用",
+    "有效期剩余 " + duration(entry.expiresAt - now) + "，距离续期 " + duration(entry.refreshAt - now));
+}
+
+function notifyProblem(status, value, source, error) {
+  if (value && value.length === 312) {
+    notify("Codex 收到 312，请注意", source,
+      "上游返回 312 字符 state，未作为新的 292 缓存采集；请留意后续请求状态。");
+  } else if (value) {
+    notify("Codex state 未通过校验", source,
+      "收到 " + value.length + " 字符 state，格式、块数或有效期不符合要求。");
+  }
+  if (error || !status) {
+    notify("Codex 网络异常，请注意", source, "未能确认响应成功，请检查网络后重试。");
+  } else if (status === 401 || status === 403) {
+    notify("Codex 认证或访问失败", source + " · HTTP " + status, "请检查登录状态和账号访问权限。");
+  } else if (status === 429) {
+    notify("Codex 请求限流，请注意", source + " · HTTP 429", "请稍后再试，避免连续重复请求。");
+  } else if (status !== 200) {
+    notify("Codex 响应异常，请注意", source + " · HTTP " + status, "响应未满足采集成功条件，请检查请求结果。");
+  } else if (!value) {
+    notify("Codex 探针未采集到 state", source, "响应缺少 state，稍后按冷却设置重新采集。");
+  }
+}
+
 function getHeader(headers, name) {
   const wanted = name.toLowerCase();
   for (const key of Object.keys(headers || {})) {
@@ -446,7 +472,7 @@ function renew(url, requestHeaders, options, key, callback) {
     if (token) {
       latest.entries[key] = makeEntry(token, options, finishedAt);
       writeStore(latest);
-      notify("Codex 292 已采集", "开始跨会话复用", "TTL 60 分钟，50 分钟后自动续期");
+      notifyCaptured(latest.entries[key], finishedAt);
       console.log("[renew] accepted state len=" + token.value.length + " blocks=" + token.blocks + " route=" + route);
       callback(undefined, latest.entries[key]);
       return;
@@ -458,6 +484,12 @@ function renew(url, requestHeaders, options, key, callback) {
     latest.entries[key] = old;
     writeStore(latest);
     console.log("[renew] rejected status=" + (status || "network") + " state_len=" + (state ? state.length : 0));
+    if (!acceptState(state, options, finishedAt) || status !== 200 || error) {
+      notifyProblem(status, state, "采集探针", error);
+    }
+    if (status === 200 && acceptState(state, options, finishedAt) && !streamCompleted(body)) {
+      notify("Codex 探针未完成", "本次采集失败", "响应流未完整结束，继续保留原缓存并等待冷却后重试。");
+    }
     callback(error || "state rejected", old);
   });
 }
@@ -468,9 +500,12 @@ function finishRequest(headers, key, entry) {
   recordFlow(flowIdentifier($request.url, headers), key, entry, injected, now, headers);
   if (injected) {
     console.log("[request] state injected len=" + entry.length + " expires_in=" + (entry.expiresAt - now));
+    notify("Codex 292 打票成功", "本次请求已注入 " + entry.length,
+      "已写入 x-codex-turn-state，有效期剩余 " + duration(entry.expiresAt - now) + "。");
     $done({headers: setHeader(headers, "x-codex-turn-state", entry.value)});
   } else {
     console.log("[request] no usable state; request passed through");
+    notify("Codex 本次未注入", "暂无有效 state 缓存", "请求已正常放行；采集成功后将恢复注入。");
     $done({});
   }
 }
@@ -540,7 +575,7 @@ function handleResponse(options) {
     if (token) {
       store.entries[key] = makeEntry(token, options, now);
       updateHistory(store, flowId, {captured: true});
-      notify("Codex 292 已采集", "开始跨会话复用", "TTL 60 分钟，50 分钟后自动续期");
+      notifyCaptured(store.entries[key], now);
       console.log("[response] pass-through state captured len=" + token.value.length);
     }
   } else if (state && current && flow && flow.fingerprint === current.fingerprint) {
@@ -551,6 +586,9 @@ function handleResponse(options) {
   }
 
   writeStore(store);
+  if (responseStatus !== 200 || (state && !token)) {
+    notifyProblem(responseStatus, token ? undefined : state, "正式请求响应");
+  }
   $done({});
 }
 
