@@ -1,4 +1,4 @@
-# Codex Sleep State Sugar
+# Codex 292
 
 适用于 Shadowrocket 的 Codex Responses HTTP 请求诊断与 state 管理脚本。默认保留客户端已有的 `x-codex-turn-state`，仅在身份、模型和轮次可确认时补充同轮复用，并通过提示栏通知观察状态。
 
