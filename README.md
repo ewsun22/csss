@@ -20,7 +20,7 @@
 直接导入地址：
 
 ```text
-https://raw.githubusercontent.com/tzf1003/csss/main/codex-state.sgmodule
+https://raw.githubusercontent.com/ewsun22/csss/main/codex-state.sgmodule
 ```
 
 导入后在 Surge 的「模块 → 未分类」中启用 `Codex Sleep State Sugar`。模块使用 GitHub Raw 地址加载脚本，并每天检查一次脚本更新。
@@ -115,6 +115,29 @@ $done({});
 4. TTL 接近续期阈值时，下一条请求会先探测新值。
 
 面板状态是流量处理的证据；模型回答内容可以作为你自己的业务验收信号，但不能单凭回答文本证明服务端内部路由实现。
+
+
+## Shadowrocket 版本（适用于 VLESS）
+
+如果你的节点是 VLESS，并且 Shadowrocket 已经负责 Mac 的代理/VPN 接管，可以直接使用这个独立适配模块，不需要同时运行 Surge：
+
+1. 在 Shadowrocket 中添加模块 URL：
+
+   `https://raw.githubusercontent.com/ewsun22/csss/main/codex-state-shadowrocket.srmodule`
+
+2. 启用模块，并在 Shadowrocket 的 MITM 设置中为 `chatgpt.com`、`api.openai.com` 安装并信任证书。
+3. 确认 Codex/ChatGPT 请求经过 Shadowrocket 的当前规则和 VLESS 出口。
+4. 首次请求没有缓存时，脚本会用当前请求的认证头发起一次短探针；通过 292 字符、10 块和有效期校验后，缓存会写入 Shadowrocket 的持久化存储。
+5. 后续请求会在有效期内注入 `x-codex-turn-state`，接近过期时自动续期。
+
+与 Surge 版本的差异：
+
+- Shadowrocket 版本没有 Surge Information Panel；请通过 Shadowrocket 日志和通知观察采集/注入结果。
+- Shadowrocket 没有 Surge 的 `policy-descriptor`，探针沿用当前 Shadowrocket 路由，不会单独切换出口。
+- `force_http=0` 是默认值，不主动中断 WebSocket。只有确认你的 Codex 客户端需要 HTTP fallback 时，才把模块两处参数都改成 `force_http=1`；主动中断 WebSocket 可能触发连接错误。
+- Shadowrocket 版本使用独立缓存键 `codex-turn-state-shadowrocket-v1`。清理缓存时只删除这个键，不要误删 Surge 版本的缓存。
+
+该脚本会在本机读取匹配请求的认证头来完成官方 OpenAI 探针，不会把账号、提示词、回答或完整 state 上传到第三方服务器。MITM 和远程脚本本身具有读取流量的能力，请只使用你信任的代码源。
 
 ## 工作原理
 
