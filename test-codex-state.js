@@ -14,6 +14,19 @@ const rejectedShape = token(11, now);
 const options = state.parseOptions("model=gpt-6-astra&ttl=3600&renew=600&cooldown=300");
 
 assert.equal(options.policy, "");
+const routedProbe = {};
+assert.equal(state.applyProbeRoute(routedProbe, {policy: "fallback"}, {
+  read: () => "socks5, proxy.example, 1080, user, pass"
+}), "SOCKS5");
+assert.deepEqual(routedProbe, {"policy-descriptor": "socks5, proxy.example, 1080, user, pass, underlying-proxy=DIRECT"});
+const chainedProbe = {};
+state.applyProbeRoute(chainedProbe, {}, {
+  read: () => "socks5, proxy.example, 1080, user, pass, underlying-proxy=Entry"
+});
+assert.deepEqual(chainedProbe, {"policy-descriptor": "socks5, proxy.example, 1080, user, pass, underlying-proxy=Entry"});
+const fallbackProbe = {};
+assert.equal(state.applyProbeRoute(fallbackProbe, {policy: "fallback"}, {read: () => ""}), "policy");
+assert.deepEqual(fallbackProbe, {policy: "fallback"});
 assert.equal(valid.length, 292);
 assert.equal(rejectedShape.length, 312);
 assert.equal(state.parseState(valid).blocks, 10);

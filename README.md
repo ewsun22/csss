@@ -77,7 +77,21 @@ policy=YOUR_RESIDENTIAL_IP_POLICY
 
 例如策略名含空格时，使用 `%20`；三处 `argument=` 应保持一致。不要把代理账号、密码、订阅 URL 或节点 URI 提交到 GitHub。
 
-### 4. 打开状态面板
+### 4. 探针专用 SOCKS5（可选）
+
+如果只希望采集和续期 state 的探针走独立 SOCKS5，可在 Surge 脚本编辑器中执行下面的本机配置；普通 Codex 请求仍按原规则选路：
+
+```js
+$persistentStore.write(
+  "socks5, proxy.example, 1080, username, password, underlying-proxy=DIRECT",
+  "csss-probe-policy-descriptor-v1"
+);
+$done({});
+```
+
+`underlying-proxy=DIRECT` 仅指定如何连接 SOCKS5 服务器，探针访问 OpenAI 时仍从该 SOCKS5 出口发出。脚本也会为未指定上游的 SOCKS5 描述符自动补上该参数。凭据只应保存在本机，不要写入模块、仓库、Issue 或日志。置空该存储键即可恢复到 `policy` 参数或 Surge 当前规则。
+
+### 5. 打开状态面板
 
 在 macOS 菜单栏点击 Surge 图标，打开「面板 → Codex 292 状态」。面板含义如下：
 
@@ -89,7 +103,7 @@ policy=YOUR_RESIDENTIAL_IP_POLICY
 
 最近记录会标注探针结果、请求是否注入、响应 state 长度和会话尾部标识。记录不保存提示词、回答或完整 token。
 
-### 5. 验证流程
+### 6. 验证流程
 
 建议先打开面板，再在 Codex 中新建会话发送一条普通短消息。随后刷新面板：
 

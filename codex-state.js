@@ -1,5 +1,6 @@
 const STORE_KEY = "codex-turn-state-v5";
 const PROBE_HEADER = "x-codex-state-probe";
+const PROBE_POLICY_KEY = "csss-probe-policy-descriptor-v1";
 
 function getHeader(headers, name) {
   const wanted = name.toLowerCase();
@@ -354,6 +355,21 @@ function retryDelay(headers, fallback) {
   return Number.isFinite(seconds) && seconds > 0 ? Math.max(fallback, seconds) : fallback;
 }
 
+function applyProbeRoute(request, options, store) {
+  const descriptor = String(store && store.read(PROBE_POLICY_KEY) || "").trim();
+  if (descriptor.length <= 2048 && /^socks5(?:-tls)?,/i.test(descriptor)) {
+    request["policy-descriptor"] = /(?:^|,)\s*underlying-proxy\s*=/i.test(descriptor)
+      ? descriptor
+      : `${descriptor}, underlying-proxy=DIRECT`;
+    return "SOCKS5";
+  }
+  if (options.policy) {
+    request.policy = options.policy;
+    return "policy";
+  }
+  return "rules";
+}
+
 function renew(url, requestHeaders, options, key, callback) {
   const now = Math.floor(Date.now() / 1000);
   const store = readStore();
@@ -376,7 +392,7 @@ function renew(url, requestHeaders, options, key, callback) {
     "auto-redirect": false,
     "auto-cookie": false
   };
-  if (options.policy) request.policy = options.policy;
+  const route = applyProbeRoute(request, options, typeof $persistentStore !== "undefined" ? $persistentStore : null);
 
   $httpClient.post(request, (error, response, body) => {
     const finishedAt = Math.floor(Date.now() / 1000);
@@ -401,7 +417,7 @@ function renew(url, requestHeaders, options, key, callback) {
       if (typeof $notification !== "undefined") {
         $notification.post("Codex 292 已采集", "开始跨会话复用", "TTL 60 分钟，50 分钟后自动续期", {"auto-dismiss": true});
       }
-      console.log("[renew] accepted state len=" + token.value.length + " blocks=" + token.blocks + " route=" + options.policy);
+      console.log("[renew] accepted state len=" + token.value.length + " blocks=" + token.blocks + " route=" + route);
       callback(undefined, latest.entries[key]);
       return;
     }
@@ -521,6 +537,7 @@ function main() {
 
 if (typeof module !== "undefined") {
   module.exports = {
+    applyProbeRoute,
     acceptState,
     accountKey,
     decodeBase64Url,
