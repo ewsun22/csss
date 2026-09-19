@@ -28,20 +28,6 @@ https://raw.githubusercontent.com/ewsun22/csss/main/codex-state-shadowrocket.srm
 
 脚本使用独立缓存键 `codex-turn-state-shadowrocket-v1`。清理缓存时只删除这个键。
 
-## 效果示例
-
-### 降智检测效果
-
-![降智检测效果](docs/assets/downgrade-detection.png)
-
-### WebSocket 握手中断提示
-
-启用 `force_http=1` 后，脚本会在 WebSocket 请求阶段中止握手，等待 Codex 回退到 HTTP Responses/SSE 路径。这个切换过程中，Codex 可能显示下面的提示：
-
-![WebSocket 握手中断提示](docs/assets/websocket-handshake-error.png)
-
-`stream disconnected before completion` / `WebSocket protocol error: Handshake not finished` 是切换到 HTTP fallback 时可能出现的连接提示，本身不代表 292 采集失败。请结合日志中的 HTTP 200、state 长度和注入记录判断结果。
-
 ## 工作原理
 
 请求脚本只匹配 Responses HTTP/SSE 接口。若当前模型是 GPT-6 Astra 且没有可用 state，脚本会使用当前请求的认证头发起一次短探针；探针响应必须是 HTTP 200、完整 SSE，并通过 state 封装和 10 块校验，才会写入 Shadowrocket 持久化存储。
