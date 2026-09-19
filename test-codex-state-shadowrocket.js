@@ -5,7 +5,7 @@ function token(blocks, issuedAt) {
   const raw = Buffer.alloc(57 + 16 * blocks);
   raw[0] = 0x80;
   raw.writeBigUInt64BE(BigInt(issuedAt), 1);
-  return raw.toString("base64").replace(/\\+/g, "-").replace(/\\//g, "_");
+  return raw.toString("base64").replace(/\+/g, "-").replace(/\//g, "_");
 }
 
 const now = 1900000000;
