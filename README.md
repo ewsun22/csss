@@ -67,12 +67,12 @@ https://raw.githubusercontent.com/tzf1003/csss/main/codex-state.sgmodule
 
 如果网络无法访问 GitHub Raw，可以下载 `codex-state.js` 到本地，并把三处 `script-path` 改成本地绝对路径。
 
-### 3. 家宽策略（可选）
+### 3. 住宅 IP 策略（可选）
 
-`policy` 是可选变量：如果你有家宽策略，可以把家宽名称填入三处 `argument=`；如果没有家宽，或把变量留空/删除，则探针和 Codex 请求会沿用 Surge 当前规则选路。
+`policy` 是可选变量：如果你有住宅 IP 策略，可以把住宅 IP 的策略名称填入三处 `argument=`；如果没有住宅 IP，或把变量留空/删除，则探针和 Codex 请求会沿用 Surge 当前规则选路。
 
 ```text
-policy=YOUR_HOME_BROADBAND_POLICY
+policy=YOUR_RESIDENTIAL_IP_POLICY
 ```
 
 例如策略名含空格时，使用 `%20`；三处 `argument=` 应保持一致。不要把代理账号、密码、订阅 URL 或节点 URI 提交到 GitHub。
