@@ -9,13 +9,13 @@
 - Surge 原生面板显示当前是否会注入、TTL、最近探针、注入次数和最近 6 条记录。
 - 捕获成功时发送本地 Surge 通知。
 
-项目只处理本机 Surge 流量，不上传账号信息、请求正文、提示词、回答或完整 state。缓存由 Surge 的脚本持久化存储管理。
+项目只处理本机代理流量，不上传账号信息、请求正文、提示词、回答或完整 state。Surge 与 Shadowrocket 版本分别使用各自的脚本持久化存储。
 
 ## 一键导入
 
 点击下面的链接，或将链接复制到浏览器地址栏：
 
-[一键导入 Surge 模块](surge:///install-module?url=https%3A%2F%2Fraw.githubusercontent.com%2Ftzf1003%2Fcsss%2Fmain%2Fcodex-state.sgmodule)
+[一键导入 Surge 模块](surge:///install-module?url=https%3A%2F%2Fraw.githubusercontent.com%2Fewsun22%2Fcsss%2Fmain%2Fcodex-state.sgmodule)
 
 直接导入地址：
 
