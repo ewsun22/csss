@@ -41,6 +41,8 @@ assert.equal(entry.refreshAt, now + 3000);
 assert.equal(entry.expiresAt, now + 3570);
 assert.equal(state.shouldRenew(entry, now + 2999), false);
 assert.equal(state.shouldRenew(entry, now + 3000), true);
+entry.strikes = 2;
+assert.equal(state.shouldRenew(entry, now + 2999), false);
 assert.equal(state.usable(entry, now + 3569), true);
 assert.equal(state.usable(entry, now + 3570), false);
 

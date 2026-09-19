@@ -165,7 +165,7 @@ function usable(entry, now) {
 }
 
 function shouldRenew(entry, now) {
-  return !usable(entry, now) || entry.refreshAt <= now || entry.strikes >= 2;
+  return !usable(entry, now) || entry.refreshAt <= now;
 }
 
 function makeEntry(token, options, now) {
@@ -521,7 +521,6 @@ function handleResponse(options) {
     }
   } else if (state && current && flow.fingerprint === current.fingerprint) {
     current.strikes = token ? 0 : (current.strikes || 0) + 1;
-    if (current.strikes >= 2) current.refreshAt = 0;
     store.entries[key] = current;
     const observed = parseState(state);
     console.log("[response] injected state observed blocks=" + (observed ? observed.blocks : "invalid") + " strikes=" + current.strikes);
