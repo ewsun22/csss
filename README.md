@@ -25,6 +25,28 @@ https://raw.githubusercontent.com/tzf1003/csss/main/codex-state.sgmodule
 
 导入后在 Surge 的「模块 → 未分类」中启用 `Codex Sleep State Sugar`。模块使用 GitHub Raw 地址加载脚本，并每天检查一次脚本更新。
 
+## 效果示例
+
+### 降智检测效果
+
+下面的截图展示了一个新会话中的检测场景：左侧是 Codex 的生成过程，右侧是生成结果预览。它用于观察多轮新会话是否出现模型质量或路由变化。
+
+![降智检测效果](docs/assets/downgrade-detection.png)
+
+### Surge 面板预览
+
+面板会直观显示当前请求是否会注入 292、缓存 TTL、距离续期时间、累计注入次数，以及最近的探针和注入记录。
+
+![Surge 面板预览](docs/assets/surge-panel-preview.png)
+
+### WebSocket 握手中断提示
+
+启用 `force_http=1` 后，脚本会在 WebSocket 请求阶段中止握手，等待 Codex 回退到 HTTP Responses/SSE 路径。这个切换过程中，Codex 可能显示下面的提示：
+
+![WebSocket 握手中断提示](docs/assets/websocket-handshake-error.png)
+
+`stream disconnected before completion` / `WebSocket protocol error: Handshake not finished` 是切换到 HTTP fallback 时可能出现的连接提示，本身不代表 292 采集失败。请以 Surge 面板中的探针状态、HTTP 200、state 长度和注入记录为准。
+
 ## 完整配置教程
 
 ### 1. 准备 Surge
