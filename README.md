@@ -69,7 +69,7 @@ https://raw.githubusercontent.com/tzf1003/csss/main/codex-state.sgmodule
 
 ### 3. 固定探针出口（可选）
 
-公开模块默认让 Surge 的规则决定出口。如果你希望探针和 Codex 请求固定到某个已有策略，编辑模块中三处 `argument=`，加入 URL 编码后的参数：
+家宽配置请保持三处 `argument=` 都不填写 `policy`，这样探针和 Codex 请求会沿用 Surge 的默认规则选路。只有需要固定出口时，才编辑模块并加入 URL 编码后的参数：
 
 ```text
 policy=YOUR_EXISTING_SURGE_POLICY

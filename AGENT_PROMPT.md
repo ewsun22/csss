@@ -1,6 +1,6 @@
 # Codex Sleep State Sugar：给 Agent 的一键配置提示词
 
-将下面整段提示词交给能够操作本机 Surge 的 Agent。使用前，把 `YOUR_SURGE_POLICY_NAME` 替换成你自己的 Surge 策略名；如果希望沿用现有规则，也可以保留为空。
+将下面整段提示词交给能够操作本机 Surge 的 Agent。家宽配置默认保持策略名为空，让 Surge 按现有规则选择默认出口；只有明确需要固定出口时，才在本机填写策略名。
 
 ```text
 请在这台 macOS 电脑上配置公开项目 Codex Sleep State Sugar。
@@ -12,7 +12,7 @@
    surge:///install-module?url=https%3A%2F%2Fraw.githubusercontent.com%2Ftzf1003%2Fcsss%2Fmain%2Fcodex-state.sgmodule
 2. 在 Surge 的模块设置中启用「Codex Sleep State Sugar」。
 3. 确认 Surge 的增强模式、脚本、MITM 已启用，并确认 chatgpt.com 与 api.openai.com 的 MITM 证书可用。
-4. 如果需要固定出口，将模块脚本参数中的 policy 设置为现有策略名 `YOUR_SURGE_POLICY_NAME`；不要创建、猜测或输出任何账号、代理密码、订阅链接、Cookie、Authorization 或完整 turn-state。
+4. 家宽配置保持模块脚本参数中的 policy 为空，让 Surge 按默认规则选路；只有用户明确要求固定出口时，才将 policy 设置为用户已有的策略名。不要创建、猜测或输出任何账号、代理密码、订阅链接、Cookie、Authorization 或完整 turn-state。
 5. 打开 macOS 菜单栏 Surge 图标 → 面板 →「Codex 292 状态」，确认面板可以显示当前是否会注入、TTL 和最近记录。
 6. 只做一次最小化验证：检查模块是否启用、配置是否生效、面板是否可打开。除非用户明确要求，不要自动发送模型测试请求。
 

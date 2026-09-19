@@ -13,6 +13,7 @@ const valid = token(10, now);
 const rejectedShape = token(11, now);
 const options = state.parseOptions("model=gpt-6-astra&ttl=3600&renew=600&cooldown=300");
 
+assert.equal(options.policy, "");
 assert.equal(valid.length, 292);
 assert.equal(rejectedShape.length, 312);
 assert.equal(state.parseState(valid).blocks, 10);
