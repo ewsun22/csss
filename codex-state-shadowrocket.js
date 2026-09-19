@@ -1,7 +1,7 @@
 // Codex Sleep State Sugar — Shadowrocket runtime adapter
-// Self-contained HTTP request/response script. It intentionally omits
-// Surge-only panels and policy-descriptor routing; probes use the active
-// Shadowrocket route. See codex-state-shadowrocket.srmodule for installation.
+// Self-contained HTTP request/response script for Shadowrocket. Probes use
+// the active Shadowrocket route. See codex-state-shadowrocket.srmodule for
+// installation.
 //
 const STORE_KEY = "codex-turn-state-shadowrocket-v1";
 const PROBE_HEADER = "x-codex-state-probe";
@@ -397,8 +397,8 @@ function retryDelay(headers, fallback) {
 }
 
 function applyProbeRoute(request, options, store) {
-  // Shadowrocket has no Surge policy-descriptor. The probe follows the
-  // currently active Shadowrocket route (including VLESS/TUN rules).
+  // The probe follows the currently active Shadowrocket route, including
+  // VLESS/TUN rules.
   return "rules";
 }
 
