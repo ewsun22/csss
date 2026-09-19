@@ -6,7 +6,7 @@
 hostname = %APPEND% chatgpt.com, api.openai.com
 
 [Script]
-# Keep policy empty for home/residential broadband. Surge's normal rules choose the route.
+# Optional: set policy=<URL-encoded home policy> in all three arguments; leave it empty to use current rules.
 codex-state-panel = type=generic,script-path=https://raw.githubusercontent.com/tzf1003/csss/main/codex-state.js,script-update-interval=86400,timeout=5,engine=jsc,argument=model=gpt-6-astra&blocks=10&ttl=3600&renew=600&cooldown=300
 codex-state-request = type=http-request,pattern=^https://(chatgpt\.com/backend-api/codex|api\.openai\.com/v1)/responses(?:\?|$),script-path=https://raw.githubusercontent.com/tzf1003/csss/main/codex-state.js,script-update-interval=86400,requires-body=false,timeout=30,engine=jsc,debug=true,argument=model=gpt-6-astra&blocks=10&ttl=3600&renew=600&cooldown=300&timeout=20&force_http=1
 codex-state-response = type=http-response,pattern=^https://(chatgpt\.com/backend-api/codex|api\.openai\.com/v1)/responses(?:\?|$),script-path=https://raw.githubusercontent.com/tzf1003/csss/main/codex-state.js,script-update-interval=86400,requires-body=false,timeout=10,engine=jsc,debug=true,argument=model=gpt-6-astra&blocks=10&ttl=3600&renew=600&cooldown=300&timeout=20&force_http=1
