@@ -287,7 +287,10 @@ function panelView(store, options, now) {
     style = "good";
     lines.push("现在发送：会注入 292");
     lines.push("TTL 剩余：" + duration(entry.expiresAt - now));
-    lines.push(entry.refreshAt <= now ? "续期：发送前先尝试续期" : "距离续期：" + duration(entry.refreshAt - now));
+    if (entry.refreshAt > now) lines.push("距离续期：" + duration(entry.refreshAt - now));
+    else if (probing) lines.push("续期：正在尝试，完成后再发送");
+    else if (cooling) lines.push("续期：上次未通过，" + duration(entry.nextProbeAt - now) + "后重试");
+    else lines.push("续期：发送前先尝试续期");
     lines.push("累计注入：" + (entry.injectionCount || 0) + " 次");
   } else if (probing) {
     lines.push("现在发送：正在采集，尚无 292");
@@ -299,7 +302,11 @@ function panelView(store, options, now) {
   }
 
   if (store.lastProbe) {
-    lines.push("最近探针：HTTP " + (store.lastProbe.status || "-") + "／state " + (store.lastProbe.stateLength || 0) + "／" + formatTime(store.lastProbe.at));
+    const rejectedRenewal = active && store.lastProbe.accepted === false && store.lastProbe.at >= entry.acquiredAt;
+    const probe = "HTTP " + (store.lastProbe.status || "-") + "／state " + (store.lastProbe.stateLength || 0);
+    lines.push(rejectedRenewal
+      ? "最近续期：" + probe + " 未通过；继续复用缓存 292／" + formatTime(store.lastProbe.at)
+      : "最近探针：" + probe + "／" + formatTime(store.lastProbe.at));
   }
   const history = (store.history || []).slice(-6).reverse();
   if (history.length) {

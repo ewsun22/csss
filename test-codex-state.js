@@ -68,14 +68,18 @@ assert.equal(waitingPanel.title, "Codex 292：等待采集");
 assert.match(waitingPanel.content, /现在发送：先采集/);
 
 entry.injectionCount = 3;
+entry.refreshAt = now - 1;
+entry.nextProbeAt = now + 90;
 const activePanel = state.panelView({
   entries: {test: entry},
   history: [{id: "request", type: "request", at: now, injected: true, thread: "5678abcd", responseLength: 312}],
-  lastProbe: {at: now, status: 200, stateLength: 292}
+  lastProbe: {at: now, status: 200, stateLength: 312, accepted: false}
 }, options, now);
 assert.equal(activePanel.title, "Codex 292：正在复用");
 assert.equal(activePanel.style, "good");
 assert.match(activePanel.content, /现在发送：会注入 292/);
+assert.match(activePanel.content, /续期：上次未通过，1 分 30 秒后重试/);
+assert.match(activePanel.content, /最近续期：HTTP 200／state 312 未通过；继续复用缓存 292/);
 assert.match(activePanel.content, /已注入 292.*响应 312/);
 
 console.log("codex-state self-check passed");
